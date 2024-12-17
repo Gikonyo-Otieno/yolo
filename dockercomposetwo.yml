@@ -31,7 +31,7 @@ services:
     networks:
       - yolo-net
 
-  #database
+  #Database
   app-ip-mongo:
     image: mongo
     container_name: app-mongo
@@ -44,17 +44,17 @@ services:
         source: yolvol
         target: /data/db
 
-  #network infrastructure
+  #Network infrastructure
   networks:
   weekfivenet:
     name: weekfivenet
-    driver: macvlan
+    driver: bridge
     attachable: true
     ipam:
       config:
         - subnet: 172.20.0.0/16
           ip_range: 172.20.0.0/16
-  #volume to persist data
+  #Volume to persist data
   volumes:
   yolvol:
     driver: local 
