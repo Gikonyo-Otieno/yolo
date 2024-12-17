@@ -1,170 +1,63 @@
-## 1. Choice of Base Image
- The base image used to build the containers is `node:16-alpine3.16`. It is derived from the Alpine Linux distribution, making it lightweight and compact. 
- Used 
- 1. Client:`node:16-alpine3.16`
- 2. Backend: `node:16-alpine3.16`
- 3.Mongo : `mongo:6.0 `
-       
+1. Choice of Base Image
+The base image used to build the containers is node:16-alpine3.16, derived from the Alpine Linux distribution, making it lightweight and compact.
 
-## 2. Dockerfile directives used in the creation and running of each container.
- I used two Dockerfiles. One for the Client and the other one for the Backend.
+Base Images Used:
 
-**Client Dockerfile**
+Client: node:16-alpine3.16
+Backend: node:16-alpine3.16
+MongoDB: mongo:6.0
 
-```
-# Build stage
-FROM node:16-alpine3.16 as build-stage
+2. Dockerfile Directives Used in the Creation and Running of Each Container
+Two Dockerfiles were created: one for the Client and the other for the Backend.
 
-# Set the working directory inside the container
-WORKDIR /client
+3. Docker Compose Networking
+The docker-compose.yml file defines the networking configuration for the project. Application ports are allocated, and a custom bridge network is created for communication between services.
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+4. Docker Compose Volume Definition and Usage
+The Docker Compose file includes volume definitions to persist MongoDB data. This ensures that the database data is retained even if the container is stopped or removed.
 
-# Install dependencies and clears the npm cache and removes any temporary files
-RUN npm install --only=production && \
-    npm cache clean --force && \
-    rm -rf /tmp/*
+5 Git Workflow to achieve task
+-Fork the repository from the original repository.
 
-# Copy the rest of the application code
-COPY . .
+-Clone the repo: git@github.com:Maubinyaachi/yolo-Microservice.git
 
-# Build the application and  remove development dependencies
-RUN npm run build && \
-    npm prune --production
+-Create a .gitignore file to exclude unnecessary files and directories from version control.
 
-# Production stage
-FROM node:16-alpine3.16 as production-stage
+-Added Dockerfile for the client to the repo: git add client/Dockerfile
 
-WORKDIR /client
+-Add Dockerfile for the backend to the repo: git add backend/dockerfile
 
-# Copy only the necessary files from the build stage
-COPY --from=build-stage /client/build ./build
-COPY --from=build-stage /client/public ./public
-COPY --from=build-stage /client/src ./src
-COPY --from=build-stage /client/package*.json ./
+-Committed the changes: git commit -m "Added Dockerfiles"
 
-# Set the environment variable for the app
-ENV NODE_ENV=production
+-Added docker-compose file to the repo: git add docker-compose.yml
 
-# Expose the port used by the app
-EXPOSE 3000
+-Committed the changes: git commit -m "Added docker-compose file"
 
-# Prune the node_modules directory to remove development dependencies and clears the npm cache and removes any temporary files
+-Pushed the files to github: git push 
 
+-Built the client and backend images: docker compose build
 
-# Start the application
-CMD ["npm", "start"]
+-Pushed the built imags to docker registry: docker compose push
 
-```
-**Backend Dockerfile**
+-Deployed the containers using docker compose: docker compose up
 
-```
-# Set base image
-FROM node:16-alpine3.16
+6. Debugging Measures Applied
+Node Version Issue:
+If the application failed to run due to a Node version compatibility issue. Instead of downgrading Node, the following command should be used to bypass the problem:
 
-# Set the working directory
-WORKDIR /backend
+    export NODE_OPTIONS=--openssl-legacy-provider
+    npm start
 
-# Copy package.json and package-lock.json to the container
-COPY package*.json ./
+Port Conflicts:
+Verified that ports 3000, 5000, and 27017 were not in use before running the containers.
 
-# Install dependencies and clears the npm cache and removes any temporary files
-RUN npm install --only=production && \
-    npm cache clean --force && \
-    rm -rf /tmp/*
+7. Best Practices Followed
+-Lightweight Images: Used node:16-alpine3.16 for optimized performance and smaller image sizes.
+-Environment Variables: Utilized ENV directives in Dockerfiles to configure applications for production environments.
+-Data Persistence: Leveraged Docker volumes for MongoDB data storage.
 
-# Copy the rest of the application code
-COPY . .
+8. Deployed Images on DockerHub
+The Docker images were pushed to DockerHub with proper version tags:
 
-# Set the environment variable for the app
-ENV NODE_ENV=production
-
-# Expose the port used by the app
-EXPOSE 5000
-
-# Prune the node_modules directory to remove development dependencies and clears the npm cache and removes any temporary files
-RUN npm prune --production && \
-    npm cache clean --force && \
-    rm -rf /tmp/*
-
-# Start the application
-CMD ["npm", "start"]
-
-```
-
-## 3. Docker Compose Networking
-The (docker-compose.yml) defines the networking configuration for the project. It includes the allocation of application ports. The relevant sections are as follows:
-
-
-```
-services:
-  backend:
-    # ...
-    ports:
-      - "5000:5000"
-    networks:
-      - yolo-network
-
-  client:
-    # ...
-    ports:
-      - "3000:3000"
-    networks:
-      - yolo-network
-  
-  mongodb:
-    # ...
-    ports:
-      - "27017:27017"
-    networks:
-      - yolo-network
-
-networks:
-  yolo-network:
-    driver: bridge
-```
-In this configuration, the backend container is mapped to port 5000 of the host, the client container is mapped to port 3000 of the host, and mongodb container is mapped to port 27017 of the host. All containers are connected to the yolo-network bridge network.
-
-
-## 4.  Docker Compose Volume Definition and Usage
-The Docker Compose file includes volume definitions for MongoDB data storage. The relevant section is as follows:
-
-yaml
-
-```
-volumes:
-  mongodata:  # Define Docker volume for MongoDB data
-    driver: local
-
-```
-This volume, mongodb_data, is designated for storing MongoDB data. It ensures that the data remains intact and is not lost even if the container is stopped or deleted.
-
-## 5. Git Workflow to achieve the task
-
-To achieve the task the following git workflow was used:
-
-1. Fork the repository from the original repository.
-2. Clone the repo: `git@github.com:Maubinyaachi/yolo-Microservice.git`
-3. Create a .gitignore file to exclude unnecessary     files and directories from version control.
-4. Added Dockerfile for the client to the repo:
-`git add client/Dockerfile`
-5. Add Dockerfile for the backend to the repo:
-`git add backend/dockerfile`
-6. Committed the changes:
-`git commit -m "Added Dockerfiles"`
-7. Added docker-compose file to the repo:
-`git add docker-compose.yml`
-8. Committed the changes:
-`git commit -m "Added docker-compose file"`
-9. Pushed the files to github:
-`git push `
-10. Built the client and backend images:
-`docker compose build`
-11. Pushed the built imags to docker registry:
-`docker compose push`
-12. Deployed the containers using docker compose:
-`docker compose up`
-
-13. Created explanation.md file and modified it as the commit messages in the repo will explain.
-
+Client Image: gikonyo14/gikonyo-yolo-client
+Backend Image: gikonyo14/gikonyo-yolo-backend
