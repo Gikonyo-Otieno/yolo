@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+
+  #Builds the frontend Docker image and creates the frontend microservice
+  gikonyo-yolo-client:
+    image: gikonyo14/gikonyo-yolo-client:v1.0.0
+    build: ./client
+    container_name: gikonyo-yolo-client
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+    depends_on: 
+      - gikonyo-yolo-backend
+    networks:
+      - yolo-net
+
+  #Builds the backend Docker image and creates the backend microservice
+  gikonyo-yolo-backend:
+    image: 
+    build: ./backend
+    container_name:
+    stdin_open: true
+    tty: true
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on: 
+      - 
+    networks:
+      - yolo-net
+
