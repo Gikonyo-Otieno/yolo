@@ -25,4 +25,10 @@ COPY --from=build /usr/src/app /app
 EXPOSE 3000
 
 # Define the command to run your app
-CMD ["npm", "start"]
+CMD ["npm", "start"] 
+
+
+
+
+
+
