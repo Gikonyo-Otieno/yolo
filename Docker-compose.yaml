@@ -11,7 +11,7 @@ version: "3.8"
 services:
 
   #Builds the frontend Docker image and creates the frontend microservice
-  brian-yolo-client:
+  gikonyo-yolo-client:
     image: gikonyo14/gikonyo-yolo-client:v1.0.0
     build: ./client
     container_name: gikonyo-yolo-client
@@ -25,7 +25,7 @@ services:
       - app-net
 
   #Builds the backend Docker image and creates the backend microservice
-  brian-yolo-backend:
+  gikonyo-yolo-backend:
     image: gikonyo14/gikonyo-yolo-backend:v1.0.0
     build: ./backend
     container_name: gikonyo-yolo-backend
