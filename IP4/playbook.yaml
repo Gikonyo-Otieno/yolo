@@ -1,0 +1,58 @@
+---
+- name: Setup Docker Containers for Application
+  hosts: all
+  become: true
+  vars_files:
+    - roles/backend-setup/variables/main.yml
+    - roles/frontend-setup/variables/main.yml
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+        name: nodejs
+        state: present
+
+    - name: Install Node.js
+      apt:
+        name: nodejs
+        state: present
+
+    - name: Install npm
+      apt:
+        name: npm
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Docker Compose
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Clone github repository
+      git:
+        repo: "https://github.com/Gikonyo-Otieno/yolo"
+        dest: /home/vagrant/project
+
+    - name: Permissions for Docker
+      shell: |
+        usermod -aG docker $USER
+        newgrp docker
+
+    - name: Build and run Docker containers
+      shell: |
+        docker-compose up -d
+      arg:
+        cdir: /home/vagrant/project
+
+    - name: Frontend-setup role
+      include_role:
+        name: frontend-setup
+
+    - name: Backend-setup role
+      include_role:
+        name: backend-setup
