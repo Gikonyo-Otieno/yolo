@@ -21,6 +21,8 @@ spec:
             - containerPort: 5000
           env:
             - name: DATABASE_HOST
-              value: "database-service"
+              value: "database-service"  
             - name: DATABASE_PORT
-              value: "5432"
+              value: "27017"  
+            - name: MONGODB_URI
+              value: "mongodb://database-service:27017/yolomy"  

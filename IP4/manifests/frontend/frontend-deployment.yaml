@@ -16,11 +16,18 @@ spec:
     spec:
       containers:
         - name: gikonyo-yolo-client
-          image: gikonyo14/gikonyo-yolo-client:latest
+          image: gikonyo14/gikonyo-yolo-client:v1.1.0
           ports:
             - containerPort: 3000
           env:
             - name: BACKEND_HOST
-              value: "backend-service"
+              value: "backend-service"  
             - name: BACKEND_PORT
-              value: "5000"
+              value: "5000"  
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
